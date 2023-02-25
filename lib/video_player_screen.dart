@@ -1,15 +1,7 @@
-import 'dart:html';
 import 'dart:typed_data';
 import 'dart:html' as html;
 
-import 'package:camera/camera.dart';
-import 'package:dio/dio.dart';
-import 'package:ffmpeg_assignment/route_generator.dart';
-import 'package:ffmpeg_assignment/routes.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:shelf/shelf.dart';
-import 'package:shelf_static/shelf_static.dart';
 import 'package:video_player/video_player.dart';
 import 'package:http/http.dart' as http;
 
@@ -89,9 +81,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
     _compressedController =
         VideoPlayerController.network(u, formatHint: VideoFormat.dash)
-          ..initialize().then((_) => setState(() {
-                responseLength = byte.lengthInBytes;
-              }));
+          ..initialize().then(
+            (_) => setState(
+              () => responseLength = byte.lengthInBytes,
+            ),
+          );
 
     if (response.statusCode == 200) {
       print('Video uploaded successfully');
@@ -154,7 +148,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                           ? 'Pause'
                           : 'Play'),
                     )
-                  : SizedBox()
+                  : const SizedBox()
             ],
           ),
         ],

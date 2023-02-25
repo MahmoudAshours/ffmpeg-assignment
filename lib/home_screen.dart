@@ -1,17 +1,7 @@
-import 'dart:html';
-import 'dart:typed_data';
-import 'dart:html' as html;
 
-import 'package:camera/camera.dart';
 import 'package:ffmpeg_assignment/home.dart';
 import 'package:ffmpeg_assignment/route_generator.dart';
-import 'package:ffmpeg_assignment/routes.dart';
-import 'package:ffmpeg_assignment/video_player_screen.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:shelf/shelf.dart';
-import 'package:shelf_static/shelf_static.dart';
-import 'package:video_player/video_player.dart';
 
 class MyApp extends StatefulWidget {
   final List cameras;
