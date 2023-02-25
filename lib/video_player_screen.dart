@@ -1,6 +1,7 @@
 import 'dart:typed_data';
-import 'dart:html' as html;
 
+import 'package:ffmpeg_assignment/Utils/bytes_to_url.dart';
+import 'package:ffmpeg_assignment/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:http/http.dart' as http;
@@ -22,17 +23,20 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void initState() {
     super.initState();
-    final blob = html.Blob([widget.bytes]);
-    final url = html.Url.createObjectUrlFromBlob(blob);
 
-    _controller =
-        VideoPlayerController.network(url, formatHint: VideoFormat.dash)
-          ..initialize().then((_) => setState(() {}));
+    _controller = VideoPlayerController.network(bytesToUrl(widget.bytes),
+        formatHint: VideoFormat.dash)
+      ..initialize().then((_) => setState(() {}));
   }
 
-  Future<void> sendVideoBytes(List<int> bytes) async {
-    var url = Uri.parse('http://localhost:8000/compress');
-    var request = http.MultipartRequest('POST', url);
+  Future<void> compressVideo(
+    List<int> bytes, {
+    required bool isBlackAndWhite,
+  }) async {
+    final url = Uri.parse(isBlackAndWhite
+        ? AppConstants.blackAndWhite
+        : AppConstants.compressUrl);
+    final request = http.MultipartRequest('POST', url);
 
     // add video bytes as a file to the request body
     final videoFile = http.MultipartFile.fromBytes(
@@ -44,48 +48,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
     // send the request
     var response = await request.send();
-    final byte = await response.stream.toBytes();
-    final blob = html.Blob([byte]);
-    final u = html.Url.createObjectUrlFromBlob(blob);
+    final responseBytes = await response.stream.toBytes();
 
-    _compressedController =
-        VideoPlayerController.network(u, formatHint: VideoFormat.dash)
-          ..initialize().then((_) => setState(() {
-                responseLength = byte.lengthInBytes;
-              }));
-
-    if (response.statusCode == 200) {
-      print('Video uploaded successfully');
-    } else {
-      print('Error uploading video: ${response.reasonPhrase}');
-    }
-  }
-
-  Future<void> blackAndWhite(List<int> bytes) async {
-    var url = Uri.parse('http://localhost:8000/black_and_white');
-    var request = http.MultipartRequest('POST', url);
-
-    // add video bytes as a file to the request body
-    final videoFile = http.MultipartFile.fromBytes(
-      'video',
-      bytes,
-      filename: 'video.mp4',
-    );
-    request.files.add(videoFile);
-
-    // send the request
-    var response = await request.send();
-    final byte = await response.stream.toBytes();
-    final blob = html.Blob([byte]);
-    final u = html.Url.createObjectUrlFromBlob(blob);
-
-    _compressedController =
-        VideoPlayerController.network(u, formatHint: VideoFormat.dash)
-          ..initialize().then(
-            (_) => setState(
-              () => responseLength = byte.lengthInBytes,
-            ),
-          );
+    _compressedController = VideoPlayerController.network(
+        bytesToUrl(responseBytes),
+        formatHint: VideoFormat.dash)
+      ..initialize().then(
+        (_) => setState(
+          () => responseLength = responseBytes.lengthInBytes,
+        ),
+      );
 
     if (response.statusCode == 200) {
       print('Video uploaded successfully');
@@ -114,10 +86,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               Row(
                 children: [
                   ElevatedButton(
-                      onPressed: () async => await sendVideoBytes(widget.bytes),
+                      onPressed: () async => await compressVideo(widget.bytes,
+                          isBlackAndWhite: false),
                       child: const Text("Compress")),
                   ElevatedButton(
-                      onPressed: () async => await blackAndWhite(widget.bytes),
+                      onPressed: () async => await compressVideo(widget.bytes,
+                          isBlackAndWhite: true),
                       child: const Text("Black and white"))
                 ],
               )

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
-import 'package:ffmpeg_assignment/home.dart';
+import 'package:ffmpeg_assignment/Screens/home.dart';
 import 'package:ffmpeg_assignment/routes.dart';
 import 'package:ffmpeg_assignment/video_player_screen.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +14,8 @@ class RouteGenerator {
         final data = ((arguments as Map)['data']) as String;
 
         return _GeneratePageRoute(
-          widget: VideoPlayerScreen(bytes: Uint8List.fromList(json.decode(data).cast<int>())),
+          widget: VideoPlayerScreen(
+              bytes: Uint8List.fromList(json.decode(data).cast<int>())),
           routeName: settings.name!,
         );
       default:
