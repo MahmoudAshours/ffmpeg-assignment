@@ -53,6 +53,10 @@ Once done, open the XAMPP app and click "stop" on the Apache row.
 - Run `go run main.go`
 
 
+## Setup ffmpeg 
+
+Make sure you have [ffmpeg](https://ffmpeg.org/download.html) installed on your system.
+
 Then you should be good to go.
 
 
